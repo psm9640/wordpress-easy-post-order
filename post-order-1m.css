@@ -1,0 +1,39 @@
+/* Style for the plugin sorting interface */
+.post-order-wrap ul.sortable {
+    margin-top: 5px;
+    list-style: none;
+    padding: 0;
+}
+
+.post-order-wrap .sortable li {
+    cursor: grab;
+    border: 1px solid #ddd;
+    width: 80%;
+    background-color: #fff;
+    margin-bottom: 10px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.post-order-wrap .sortable li.on {
+    cursor: grabbing;
+}
+
+.post-order-wrap .sortable li td {
+    padding: 5px;
+}
+
+.post-order-wrap .sortable li td img {
+    border: 1px solid #ddd;
+    height: 80px;
+    width: auto;
+    vertical-align: top;
+}
+
+.post-order-wrap img.size-onem-admin-thumb {
+    max-height: 40px;
+    margin: 0 auto;
+    display: block;
+}
