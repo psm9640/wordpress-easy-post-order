@@ -5,7 +5,7 @@ Plugin Name: Post Order
 Plugin URI: 
 Description: Allows for drag and drop ordering of posts.
 Author: Peter Marra
-Version: 1.0.4
+Version: 1.0.5
 Author URI: http://marraman.com/
 */
 
@@ -77,6 +77,15 @@ function po_settings_page() {
         </form>
     </div>
     <?php
+}
+
+// Add a settings link on the plugins page
+add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'po_add_settings_link');
+
+function po_add_settings_link($links) {
+    $settings_link = '<a href="options-general.php?page=post-order-settings">Settings</a>';
+    array_unshift($links, $settings_link);
+    return $links;
 }
 
 // Admin submenu for each post type
@@ -174,6 +183,37 @@ function po_order_posts_by_menu_order($query) {
         if (in_array($query->get('post_type'), $selected_post_types)) {
             $query->set('orderby', 'menu_order');
             $query->set('order', 'ASC');
+        }
+    }
+}
+
+// Add hook to set menu_order on post publish
+add_action('transition_post_status', 'po_set_menu_order_on_publish', 10, 3);
+
+function po_set_menu_order_on_publish($new_status, $old_status, $post) {
+    // Only proceed if the post is being published
+    if ($new_status === 'publish' && $old_status !== 'publish') {
+        // Get selected post types from the plugin settings
+        $selected_post_types = get_option('post_order_post_types', array());
+
+        // Only proceed if the post type is one of the selected ones
+        if (in_array($post->post_type, $selected_post_types)) {
+            global $wpdb;
+
+            // Get the max menu_order value for this post type
+            $max_menu_order = $wpdb->get_var($wpdb->prepare(
+                "SELECT MAX(menu_order) FROM {$wpdb->posts} WHERE post_type = %s",
+                $post->post_type
+            ));
+
+            // Set menu_order to max menu_order + 1
+            $new_menu_order = $max_menu_order + 1;
+
+            // Update the menu_order of the post
+            wp_update_post(array(
+                'ID' => $post->ID,
+                'menu_order' => $new_menu_order
+            ));
         }
     }
 }
